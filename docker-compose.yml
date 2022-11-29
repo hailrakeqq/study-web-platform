@@ -1,0 +1,18 @@
+version: '3.7'
+
+services:
+  app:
+    build:
+      context: .
+    expose:
+      - "5050"
+    restart: always
+    environment:
+      - ASPNETCORE_URLS=http://+:8000
+
+  proxy:
+    build: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - app
