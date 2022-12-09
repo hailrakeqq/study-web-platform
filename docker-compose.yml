@@ -5,10 +5,10 @@ services:
     build:
       context: .
     expose:
-      - "5050"
+      - "5001"
     restart: always
     environment:
-      - ASPNETCORE_URLS=http://+:8000
+      - VIRTUAL_HOST=hailrake.space
 
   proxy:
     build: nginx

@@ -15,7 +15,7 @@ RUN npm run build
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS final
 WORKDIR /app
-EXPOSE 5050
+EXPOSE 5001
 RUN mkdir /app/wwwroot
 COPY --from=dotnet-publish /app/publish .
 COPY --from=node-builder /node/build ./wwwroot
