@@ -1,6 +1,11 @@
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
-
-namespace website
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI;
+using Microsoft.EntityFrameworkCore;
+using study_web_platform.Data;
+using study_web_platform.Models;
+namespace study_web_platform
 {
     public class Startup
     {
@@ -15,6 +20,17 @@ namespace website
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(Toolchain.GetStringFromDotEnv("CONNECTION_DB_STRING")));
+            services.AddDatabaseDeveloperPageExceptionFilter();
+
+            services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddIdentityServer().AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+
+            services.AddAuthentication().AddIdentityServerJwt();
+
+            services.AddRazorPages();
             services.AddControllersWithViews();
 
             // In production, the React files will be served from this directory
@@ -28,13 +44,10 @@ namespace website
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+                app.UseMigrationsEndPoint();
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -44,6 +57,11 @@ namespace website
 
             app.UseRouting();
 
+            // app.UseAuthentication();
+            // app.UseIdentityServer();
+            // app.UseAuthorization();
+
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
@@ -51,14 +69,13 @@ namespace website
                     pattern: "{controller}/{action=Index}/{id?}");
             });
 
+
             app.UseSpa(spa =>
             {
                 spa.Options.SourcePath = "ClientApp";
 
                 if (env.IsDevelopment())
-                {
                     spa.UseReactDevelopmentServer(npmScript: "start");
-                }
             });
         }
     }
