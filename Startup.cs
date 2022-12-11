@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using study_web_platform.Data;
 using study_web_platform.Models;
@@ -16,33 +15,34 @@ namespace study_web_platform
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+
+        //This method gets called by the runtime.Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(Toolchain.GetStringFromDotEnv("CONNECTION_DB_STRING")));
+            // services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(Toolchain.GetStringFromDotEnv("CONNECTION_DB_STRING")));
-            services.AddDatabaseDeveloperPageExceptionFilter();
+            // services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            //     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            // services.AddIdentityServer()
+            //     .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
-            services.AddIdentityServer().AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+            // services.AddAuthentication()
+            //     .AddIdentityServerJwt();
 
-            services.AddAuthentication().AddIdentityServerJwt();
+            // services.AddRazorPages();
 
-            services.AddRazorPages();
             services.AddControllersWithViews();
 
-            // In production, the React files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "wwwroot";
-            });
+            services.AddSpaStaticFiles(configuration => { configuration.RootPath = "wwwroot"; });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseDeveloperExceptionPage();
+
             if (env.IsDevelopment())
                 app.UseMigrationsEndPoint();
             else
@@ -51,16 +51,14 @@ namespace study_web_platform
                 app.UseHsts();
             }
 
-            //app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
             app.UseRouting();
 
             // app.UseAuthentication();
-            // app.UseIdentityServer();
+            // //app.UseIdentityServer();
             // app.UseAuthorization();
-
 
             app.UseEndpoints(endpoints =>
             {
@@ -68,7 +66,6 @@ namespace study_web_platform
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
             });
-
 
             app.UseSpa(spa =>
             {
