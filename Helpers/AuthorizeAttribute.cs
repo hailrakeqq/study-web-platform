@@ -1,7 +1,7 @@
-namespace study_web_platform.Helper
+namespace study_web_platform.Helpers
 {
     public class AuthorizeAttribute
     {
-        
+
     }
 }

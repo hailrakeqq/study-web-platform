@@ -1,9 +1,13 @@
+using AutoMapper;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using study_web_platform.Data;
-using study_web_platform.Models;
+using study_web_platform.Services;
+using study_web_platform.Helper;
+
+
 namespace study_web_platform
 {
     public class Startup
@@ -19,20 +23,33 @@ namespace study_web_platform
         //This method gets called by the runtime.Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(Toolchain.GetStringFromDotEnv("CONNECTION_DB_STRING")));
-            // services.AddDatabaseDeveloperPageExceptionFilter();
+            services.AddDbContext<DataContext>(opt =>
+                opt.UseNpgsql($"User ID = postgres; Password = {Toolchain.GetStringFromDotEnv("DB_PASSWD")}; Host = localhost; Port = 5432; Database = devplatform;"));
+            services.AddDatabaseDeveloperPageExceptionFilter();
 
-            // services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-            //     .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddScoped(typeof(IEfRepository<>), typeof(UserRepository<>));
 
-            // services.AddIdentityServer()
-            //     .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+            services.AddAutoMapper(typeof(UserProfile));
+            services.AddCors();
+            services.AddControllers();
 
-            // services.AddAuthentication()
-            //     .AddIdentityServerJwt();
+            services.AddScoped<IUserService, UserService>();
 
-            // services.AddRazorPages();
+            services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            services.AddIdentityServer()
+                .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+
+            services.AddAuthentication()
+                .AddIdentityServerJwt();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Study WEB platform API API", Version = "v1" });
+            });
+
+            services.AddScoped<IUserService, UserService>();
             services.AddControllersWithViews();
 
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "wwwroot"; });
@@ -54,12 +71,23 @@ namespace study_web_platform
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
+            app.UseMiddleware<JwtMiddleware>();
             app.UseRouting();
+            app.UseSwagger();
+            app.UseSwagger();
+            app.UseSwaggerUI(x =>
+            {
+                x.SwaggerEndpoint("/swagger/v1/swagger.json", "Study WEB platform API v1");
+
+            });
 
             // app.UseAuthentication();
             // //app.UseIdentityServer();
             // app.UseAuthorization();
-
+            app.UseCors(x => x
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
