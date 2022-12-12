@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using study_web_platform.Data;
 using study_web_platform.Services;
-using study_web_platform.Helper;
+using study_web_platform.Helpers;
 
 
 namespace study_web_platform
