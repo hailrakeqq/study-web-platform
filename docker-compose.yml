@@ -9,6 +9,18 @@ services:
     restart: always
     environment:
       - VIRTUAL_HOST=hailrake.space
+    # depends_on:
+    #   - "postgres"
+    # networks:
+    #   - aspnetcoreapp-network
+
+    # postgres:
+    #   image: postgres:latest
+    #   environment:
+    #     # change this for a "real" app!
+    #     POSTGRES_PASSWORD: password
+    #   networks:
+    #     - aspnetcoreapp-network
 
   proxy:
     build: nginx
@@ -16,3 +28,7 @@ services:
       - "80:80"
     depends_on:
       - app
+
+# networks:
+#   aspnetcoreapp-network:
+#     driver: bridge
